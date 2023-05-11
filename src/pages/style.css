@@ -1,0 +1,29 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.Nav{
+    background-color: #AEC6CF;
+    font-weight: bold;
+}
+
+.btnGroup{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 50px 40px;
+}
+
+.btnGroup button{
+    width: 100px;
+    border-radius: 20px;
+}
+
+.download{
+    position: absolute;
+    width: 200px;
+    border-radius: 20px;
+    left: 25%;
+}
