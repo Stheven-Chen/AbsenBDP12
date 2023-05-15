@@ -13,7 +13,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 50px 40px;
+    margin: 50px 100px;
 }
 
 .btnGroup button{
@@ -27,9 +27,39 @@
     border-radius: 20px;
     left: 42%;
 }
+button.reset{
+    position: absolute;
+    width: 200px;
+    border-radius: 20px;
+    left: 42%;
+    top: 60%;
+}
+.all{
+    position: absolute;
+    width: 200px;
+    height: 100px;
+    background-color: red;
+    color:white;
+    font-weight: bold;
+    border-radius: 20px;
+    left: 42%;
+    top: 60%;
+}
 
 @media (max-width: 768px){
     .download{
         left: 25%;
+    }
+    button.reset{
+        top:30%;
+        left: 25%;
+
+    } 
+    .all{
+        top:30%;
+        left: 24%;
+    }
+    .btnGroup{
+        margin: 50px 40px;
     }
 }

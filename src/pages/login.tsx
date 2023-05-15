@@ -10,29 +10,39 @@ const Login: React.FC<LoginProps> = ({ setIsLoggedIn }) => {
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false); // State untuk mengontrol overlay loading
   const navigate = useNavigate();
+  const BIN_ID = "64618e958e4aa6225e9d13e5";
+  const API_KEY = "$2b$10$Bynx9Y7mccbSvQ/Ipgsds.8PJSe.zROtgDguCsws.UhfoQVXPqoae";
+
 
   const handleLogin = async () => {
     setIsLoading(true); // Menampilkan overlay loading
-
+  
     // Mengambil data pengguna dari API
     try {
-      const response = await fetch("http://stheven.000webhostapp.com/api/bdp.php");
+      const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest?meta=false`, {
+        headers: {
+          "X-Master-Key": API_KEY
+        },
+      });
       const data = await response.json();
-
+  
       // Memeriksa apakah nama pengguna cocok dengan data dari API
-      const user = data.find((item: { nama: string }) => item.nama.toLowerCase() === username.toLowerCase());
+      const users = data.nama;
+      const user = users.find((item: string) => item.toLowerCase() === username.toLowerCase());
+      
       if (user) {
         setIsLoggedIn(true); // Set nilai isLoggedIn menjadi true
-        navigate(`/${user.nama}`);
+        navigate(`/${user}`);
       } else {
         alert("Nama pengguna tidak valid");
       }
     } catch (error) {
       console.log("Error fetching data:", error);
     }
-
+  
     setIsLoading(false); // Menyembunyikan overlay loading setelah selesai fetch data
   };
+  
 
   return (
     <div className="login-container">

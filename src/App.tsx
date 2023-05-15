@@ -10,6 +10,7 @@ import Yoga from './pages/yoga';
 import Dimas from './pages/dimas';
 import Kevin from './pages/kevin';
 import Login from './pages/login';
+import Admin from './pages/admin';
 
 const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -21,6 +22,10 @@ const App: React.FC = () => {
         <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />} />
 
         {/* Rute-rute yang memerlukan autentikasi */}
+        <Route
+          path="/admin"
+          element={isLoggedIn ? <Admin /> : <Navigate to="/login" />}
+        />
         <Route
           path="/stheven"
           element={isLoggedIn ? <Stheven /> : <Navigate to="/login" />}
@@ -34,7 +39,7 @@ const App: React.FC = () => {
           element={isLoggedIn ? <Putri /> : <Navigate to="/login" />}
         />
         <Route
-          path="/bela"
+          path="/bella"
           element={isLoggedIn ? <Bela /> : <Navigate to="/login" />}
         />
         <Route
