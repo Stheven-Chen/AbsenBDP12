@@ -10,6 +10,10 @@
     const BIN_ID = "645cb3739d312622a35c1033";
     const API_KEY = "$2b$10$Bynx9Y7mccbSvQ/Ipgsds.8PJSe.zROtgDguCsws.UhfoQVXPqoae";
 
+    const options = {
+      hour12: false, // Setel ke false untuk format 24 jam
+    };
+
     useEffect(() => {
       const timer = setInterval(() => {
         setCurrentTime(new Date());
@@ -61,7 +65,7 @@
           ...data,
           absen: [
             ...data.absen,
-            { date: currentDate, timeIn: new Date().toLocaleTimeString(), timeOut: '' },
+            { date: currentDate, timeIn: new Date().toLocaleTimeString(undefined, options), timeOut: '' },
           ],
         };
         setData(newData);
@@ -80,7 +84,7 @@
         const newData = {
           ...data,
           absen: data.absen.map((item: { date: string; }) =>
-            item.date === currentDate ? { ...item, timeOut: new Date().toLocaleTimeString() } : item
+            item.date === currentDate ? { ...item, timeOut: new Date().toLocaleTimeString(undefined,options) } : item
           ),
         };
         setData(newData);

@@ -10,6 +10,9 @@ const Putri: React.FC = () => {
   const [data, setData] = useState<any>(null);
   const BIN_ID = "645cb5dc8e4aa6225e9adc4b";
   const API_KEY='$2b$10$Bynx9Y7mccbSvQ/Ipgsds.8PJSe.zROtgDguCsws.UhfoQVXPqoae';
+  const options = {
+    hour12: false, // Setel ke false untuk format 24 jam
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -59,7 +62,7 @@ const Putri: React.FC = () => {
         ...data,
         absen: [
           ...data.absen,
-          { date: currentDate, timeIn: new Date().toLocaleTimeString(), timeOut: '' },
+          { date: currentDate, timeIn: new Date().toLocaleTimeString(undefined, options), timeOut: '' },
         ],
       };
       setData(newData);
@@ -78,7 +81,7 @@ const Putri: React.FC = () => {
       const newData = {
         ...data,
         absen: data.absen.map((item: { date: string; }) =>
-          item.date === currentDate ? { ...item, timeOut: new Date().toLocaleTimeString() } : item
+          item.date === currentDate ? { ...item, timeOut: new Date().toLocaleTimeString(undefined, options) } : item
         ),
       };
       setData(newData);
