@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './style.css';
-import { Navbar, Nav, Container } from 'react-bootstrap';
+import { Navbar, Table, Container } from 'react-bootstrap';
 import * as XLSX from "xlsx";
 import saveAs from "file-saver";
 
@@ -185,6 +185,25 @@ const Dika: React.FC = () => {
           <Navbar.Text className="ml-auto">{formattedTime}</Navbar.Text>
         </Container>
       </Navbar>
+       <Table responsive>
+          <thead>
+            <tr>
+                <th>Tanggal</th>
+                <th>Time In</th>
+                <th>Time Out</th>
+            </tr>
+          </thead>
+          <tbody>
+          {data && data.absen.map((item: any, index: number) => (
+            <tr key={index}>
+              <td>{item.date}</td>
+              <td>{item.timeIn}</td>
+              <td>{item.timeOut}</td>
+            </tr>
+          ))}
+          </tbody>
+
+        </Table>
       <div className="btnGroup">
         <button onClick={handleTimeIn}>Time In</button>
         <button onClick={handleTimeOut}>Time Out</button>

@@ -21,14 +21,14 @@
     border-radius: 20px;
 }
 
-.download{
-    position: absolute;
+button.download{
+    position: relative;
     width: 200px;
     border-radius: 20px;
     left: 42%;
 }
 button.reset{
-    position: absolute;
+    position: relative;
     width: 200px;
     border-radius: 20px;
     left: 42%;
@@ -47,12 +47,12 @@ button.reset{
 }
 
 @media (max-width: 768px){
-    .download{
-        left: 25%;
+    button.download{
+        left:25%;
     }
     button.reset{
-        top:30%;
-        left: 25%;
+        margin-top: 20px;
+        left:25%;
 
     } 
     .all{
