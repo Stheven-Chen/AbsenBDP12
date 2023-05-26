@@ -1,12 +1,14 @@
   import React, { useState, useEffect } from "react";
   import "./style.css";
-  import { Navbar, Container, Table } from "react-bootstrap";
+  import AttendanceComponent from '../component/mainUi'
+  import {Alert} from '../component/ui'
   import * as XLSX from "xlsx";
   import saveAs from "file-saver";
 
   const Stheven: React.FC = () => {
     const [currentTime, setCurrentTime] = useState(new Date());
     const [data, setData] = useState<any>(null);
+    const [alert, setAlert] = useState<string>("");
     const BIN_ID = "645cb3739d312622a35c1033";
     const API_KEY = "$2b$10$Bynx9Y7mccbSvQ/Ipgsds.8PJSe.zROtgDguCsws.UhfoQVXPqoae";
 
@@ -59,7 +61,7 @@
       const existingData = data.absen.find((item: { date: string }) => item.date === currentDate);
 
       if (existingData) {
-        alert("Anda sudah melakukan absen masuk.");
+        setAlert("Anda sudah melakukan absen masuk.");
       } else {
         const newData = {
           ...data,
@@ -79,7 +81,7 @@
       const existingData = data.absen.find((item: { date: string; }) => item.date === currentDate);
     
       if (!existingData) {
-        alert("Belum melakukan absen masuk.");
+        setAlert("Belum melakukan absen masuk.");
       } else if (!existingData.timeOut) {
         const newData = {
           ...data,
@@ -91,7 +93,7 @@
         console.log(newData);
         updateData(newData);
       } else {
-        alert("Sudah melakukan absen keluar.");
+        setAlert("Sudah melakukan absen keluar.");
       }
     };
 
@@ -102,7 +104,7 @@
       };
       setData(newData);
       console.log(newData);
-      alert('Berhasil Reset');
+      setAlert('Berhasil Reset');
       updateData(newData);
     };
     
@@ -124,7 +126,7 @@
           const currentTime = new Date().toLocaleTimeString();
           const message = `Data berhasil diperbarui di JSONBin pada tanggal ${currentDate} pukul ${currentTime}.`;
           console.log(message);
-          alert(`Udah Ok, tanggal ${currentDate}, jam ${currentTime}` )
+          setAlert(`Udah Ok, tanggal ${currentDate}, jam ${currentTime}` )
         } else {
           throw new Error("Gagal memperbarui data di JSONBin");
         }
@@ -186,39 +188,15 @@
     
     return (
       <>
-        <Navbar collapseOnSelect expand="lg" className="Nav">
-          <Container>
-            <Navbar.Brand href="/">Stheven</Navbar.Brand>
-            <Navbar.Text className="ml-auto">{formattedTime}</Navbar.Text>
-          </Container>
-        </Navbar>
-        <Table responsive>
-          <thead>
-            <tr>
-                <th>Tanggal</th>
-                <th>Time In</th>
-                <th>Time Out</th>
-            </tr>
-          </thead>
-          <tbody>
-          {data && data.absen.map((item: any, index: number) => (
-            <tr key={index}>
-              <td>{item.date}</td>
-              <td>{item.timeIn}</td>
-              <td>{item.timeOut}</td>
-            </tr>
-          ))}
-          </tbody>
-
-        </Table>
-        <div className="btnGroup">
-          <button onClick={handleTimeIn}>Time In</button>
-          <button onClick={handleTimeOut}>Time Out</button>
-        </div>
-        <button className="download" onClick={generateExcelFile}>Download All</button>
-        <button className="reset" onClick={handleReset}>
-          Reset Attendance
-        </button>
+      <AttendanceComponent 
+      formattedTime={formattedTime} 
+      data={data} 
+      handleTimeIn={handleTimeIn}
+      handleTimeOut={handleTimeOut} 
+      generateExcelFile={generateExcelFile}
+      handleReset={handleReset}
+      nama="Stheven"/>
+      {alert && <Alert onClick={()=>setAlert("")} errorText={alert} />}
       </>
     );
   };

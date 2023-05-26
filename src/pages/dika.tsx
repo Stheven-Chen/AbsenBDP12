@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './style.css';
-import { Navbar, Table, Container } from 'react-bootstrap';
+import AttendanceComponent from '../component/mainUi'
+import {Alert} from '../component/ui'
 import * as XLSX from "xlsx";
 import saveAs from "file-saver";
 
@@ -8,6 +9,7 @@ import saveAs from "file-saver";
 const Dika: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [data, setData] = useState<any>(null);
+const [alert, setAlert] = useState<string>("");
   const BIN_ID = "645cb57f8e4aa6225e9adc06";
   const API_KEY='$2b$10$Bynx9Y7mccbSvQ/Ipgsds.8PJSe.zROtgDguCsws.UhfoQVXPqoae';
   const options = {
@@ -56,7 +58,7 @@ const Dika: React.FC = () => {
     const existingData = data.absen.find((item: { date: string }) => item.date === currentDate);
 
     if (existingData) {
-      alert("Anda sudah melakukan absen masuk.");
+      setAlert("Anda sudah melakukan absen masuk.");
     } else {
       const newData = {
         ...data,
@@ -76,7 +78,7 @@ const Dika: React.FC = () => {
     const existingData = data.absen.find((item: { date: string; }) => item.date === currentDate);
   
     if (!existingData) {
-      alert("Belum melakukan absen masuk.");
+      setAlert("Belum melakukan absen masuk.");
     } else if (!existingData.timeOut) {
       const newData = {
         ...data,
@@ -88,7 +90,7 @@ const Dika: React.FC = () => {
       console.log(newData);
       updateData(newData);
     } else {
-      alert("Sudah melakukan absen keluar.");
+      setAlert("Sudah melakukan absen keluar.");
     }
   };
 
@@ -99,7 +101,7 @@ const Dika: React.FC = () => {
     };
     setData(newData);
     console.log(newData);
-    alert('Berhasil Reset');
+    setAlert('Berhasil Reset');
     updateData(newData);
   };
   
@@ -121,10 +123,9 @@ const Dika: React.FC = () => {
         const currentTime = new Date().toLocaleTimeString();
         const message = `Data berhasil diperbarui di JSONBin pada tanggal ${currentDate} pukul ${currentTime}.`;
         console.log(message);
-        alert(`Udah Ok, tanggal ${currentDate}, jam ${currentTime}` )
+        setAlert(`Udah Ok, tanggal ${currentDate}, jam ${currentTime}` )
       } else {
         throw new Error("Gagal memperbarui data di JSONBin");
-        alert('Ada Error wkwkwk')
       }
     } catch (error) {
       console.error("Error updating data:", error);
@@ -181,39 +182,17 @@ const Dika: React.FC = () => {
   
 
   return (
-    <>
-      <Navbar collapseOnSelect expand="lg" className="Nav">
-        <Container>
-          <Navbar.Brand href="/">Dika</Navbar.Brand>
-          <Navbar.Text className="ml-auto">{formattedTime}</Navbar.Text>
-        </Container>
-      </Navbar>
-       <Table responsive>
-          <thead>
-            <tr>
-                <th>Tanggal</th>
-                <th>Time In</th>
-                <th>Time Out</th>
-            </tr>
-          </thead>
-          <tbody>
-          {data && data.absen.map((item: any, index: number) => (
-            <tr key={index}>
-              <td>{item.date}</td>
-              <td>{item.timeIn}</td>
-              <td>{item.timeOut}</td>
-            </tr>
-          ))}
-          </tbody>
-
-        </Table>
-      <div className="btnGroup">
-        <button onClick={handleTimeIn}>Time In</button>
-        <button onClick={handleTimeOut}>Time Out</button>
-      </div>
-      <button className='download' onClick={generateExcelFile}>Download All</button>
-      <button className="reset" onClick={handleReset}>Reset Attendance</button>
-    </>
+     <>
+      <AttendanceComponent 
+      formattedTime={formattedTime} 
+      data={data} 
+      handleTimeIn={handleTimeIn}
+      handleTimeOut={handleTimeOut} 
+      generateExcelFile={generateExcelFile}
+      handleReset={handleReset}
+      nama="Dika"/>
+      {alert && <Alert onClick={()=>setAlert("")} errorText={alert} />}
+      </>
   );
 };
 

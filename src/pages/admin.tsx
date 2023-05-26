@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Navbar, Container, Spinner } from "react-bootstrap";
-  import * as XLSX from "xlsx";
-  import saveAs from "file-saver";
+import { Navbar, Container} from "react-bootstrap";
+import {LoadingComponent} from '../component/ui'
+import saveAs from "file-saver";
+import {format, parse} from "date-fns" ;
+import ExcelJS from 'exceljs';
+
 
 
 const Admin: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
   const API_KEY = "$2b$10$Bynx9Y7mccbSvQ/Ipgsds.8PJSe.zROtgDguCsws.UhfoQVXPqoae";
-  const [mergedData, setMergedData] = useState<{ [key: string]: any }>({});
+  const [mergedData] = useState<{ [key: string]: any }>({});
   
     useEffect(() => {
     const timer = setInterval(() => {
@@ -60,92 +63,144 @@ const Admin: React.FC = () => {
         }
       }
   
-      console.log(mergedData);
+      console.log(JSON.stringify(mergedData,null,2));
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
+
+  // const testFetch = async () =>{
+  //   fetch('/test.json')
+  //   .then(res=>res.json())
+  //   .then(data=>{
+  //     console.log(data)
+  //     setMergedData(data);
+  //     console.log(`ini data dari merged ${JSON.stringify(mergedData, null, 2)}`)
+    
+  //   })
+  // }
   
-  const generateExcelFile = async () => {
-    const template = `${process.env.PUBLIC_URL}/template.xlsx`;
-    try {
-      const response = await fetch(template);
-      const templateData = await response.arrayBuffer();
-      const templateWorkbook = XLSX.read(templateData, { type: 'array' });
-  
-      const workbook = XLSX.utils.book_new();
-      let worksheet = templateWorkbook.Sheets[templateWorkbook.SheetNames[0]];
-      const startingRow = 8; // Baris awal untuk menulis data
-  
-      let rowIndex = startingRow;
-      let worksheetName = 'Sheet1';
 
-      worksheet['!cols'] = [
-        { wpx: 30 }, // Column A (not visible)
-        { wpx: 113 }, // Column B width: 260px
-        { wpx: 260 }, // Column C width: 113px
-        { wpx: 110 }, // Column D width: 110px
-        { wpx: 110 }, // Column E width: 110px
-        { wpx: 110 }, // Column F width: 110px
-        { wpx: 75 }, // Column G width: 75px
-      ];
+const generateExcelFile = async () => {
+  const template = `${process.env.PUBLIC_URL}/template.xlsx`;
 
-      const absenTanggal = mergedData["22-101942"].absen; // Mengambil data absen dari "22-101942"
-      const dates = absenTanggal.map((absen: { date: string | number | Date; }) => new Date(absen.date)); // Mengubah string tanggal menjadi objek Date
-      const minDate = new Date(Math.min(...dates)); // Mengambil nilai tanggal terkecil
-      const maxDate = new Date(Math.max(...dates)); // Mengambil nilai tanggal terbesar
+  try {
+    const response = await fetch(template);
+    const templateData = await response.arrayBuffer();
+    const templateWorkbook = new ExcelJS.Workbook();
+    await templateWorkbook.xlsx.load(templateData);
 
-      const minDateFormat = minDate.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
-      const maxDateFormat = maxDate.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Sheet1');
+    const startingRow = 8; // Baris awal untuk menulis data
+    let rowIndex = startingRow;
 
-      worksheet['B3'] = { t: 's', v: `Period: ${minDateFormat} - ${maxDateFormat}` };
+     
+
+    const absenTanggal = mergedData["22-101942"].absen; // Mengambil data absen dari "22-101942"
+    const dates = absenTanggal.map((absen: { date: string | number | Date; }) => new Date(absen.date)); // Mengubah string tanggal menjadi objek Date
+    const minDate = new Date(Math.min(...dates)); // Mengambil nilai tanggal terkecil
+    const maxDate = new Date(Math.max(...dates)); // Mengambil nilai tanggal terbesar
+    const minDateFormat = format(minDate, 'dd MMMM yyyy');
+    const maxDateFormat = format(maxDate, 'dd MMMM yyyy');
+
+    worksheet.getColumn('B').width = 15.71;
+    worksheet.getColumn('C').width = 36;
+    worksheet.getColumn('D').width = 15;
+    worksheet.getColumn('E').width = 15;
+    worksheet.getColumn('F').width = 15;
+    worksheet.getColumn('G').width = 15;
+
+    const title = worksheet.getCell('B1');
+    title.value = "PT Asuransi Umum BCA";
+    title.font = { name: 'Calibri', size: 11, bold: true };
+
+    const subtitle = worksheet.getCell('B2');
+    subtitle.value = "Format Absen Manual";
+    subtitle.font = { name: 'Calibri', size: 11, bold: true };
+
+    const period = worksheet.getCell('B3');
+    period.value = `Period: ${minDateFormat} - ${maxDateFormat}`;
+    period.font = { name: 'Calibri', size: 11, bold: true };
+
+    const timezone = worksheet.getCell('B4');
+    timezone.value = "Time zone format: +hh:mm or -hh:mm";
+    timezone.font = { name: 'Calibri', size: 11, bold: true };
 
 
+    // header
+    const fontHeader={name:'Arial', size:10, bold:true}
+    worksheet.getCell(`B7`).value = "Employee ID";
+    worksheet.getCell(`C7`).value = "Employee Name";
+    worksheet.getCell(`D7`).value = "Date";
+    worksheet.getCell(`E7`).value = "Time In";
+    worksheet.getCell(`F7`).value = "Time Out";
+    worksheet.getCell(`G7`).value = "Time Zone";
+    
+    worksheet.getCell(`B7`).font = fontHeader;
+    worksheet.getCell(`C7`).font = fontHeader;
+    worksheet.getCell(`D7`).font = fontHeader;
+    worksheet.getCell(`E7`).font = fontHeader;
+    worksheet.getCell(`F7`).font = fontHeader;
+    worksheet.getCell(`G7`).font = fontHeader;
+    
+    worksheet.getCell(`B7`).alignment = { vertical: 'bottom', horizontal: 'center' };
+    worksheet.getCell(`C7`).alignment = { vertical: 'bottom', horizontal: 'center' };
+    worksheet.getCell(`D7`).alignment = { vertical: 'bottom', horizontal: 'center' };
+    worksheet.getCell(`E7`).alignment = { vertical: 'bottom', horizontal: 'center' };
+    worksheet.getCell(`F7`).alignment = { vertical: 'bottom', horizontal: 'center' };
+    worksheet.getCell(`G7`).alignment = { vertical: 'bottom', horizontal: 'center' };
 
- 
-  
-      if (mergedData && typeof mergedData === 'object') {
-        Object.keys(mergedData).forEach((key) => {
-          const data = mergedData[key];
-          const name = data.name;
-          const id = data.id;
-          const absenData = data.absen;
-      
-          absenData.forEach((absen: {date: any, timeIn: any, timeOut: any}, index: number) => {
-            const row = rowIndex + index;
-      
-            // Mengisi data ID dan Nama pada kolom B dan C di setiap baris
-            worksheet['B' + row] = { t: 's', v: id };
-            worksheet['C' + row] = { t: 's', v: name };
-      
-            worksheet['D' + row] = { t: 's', v: absen.date };
-            worksheet['E' + row] = { t: 's', v: absen.timeIn };
-            worksheet['F' + row] = { t: 's', v: absen.timeOut };
-            worksheet['G' + row] = { t: 's', v: "+7:00" };
-          });
-      
-          rowIndex += absenData.length; // Hanya menambahkan jumlah baris untuk data absen
+
+    if (mergedData && typeof mergedData === 'object') {
+      Object.keys(mergedData).forEach((key) => {
+        const data = mergedData[key];
+        const name = data.name;
+        const id = data.id;
+        const absenData = data.absen;
+        const font = {name:'Calibri', size:10.5,};
+
+        absenData.forEach((absen: { date: string; timeIn: string | number | boolean | Date | ExcelJS.CellErrorValue | ExcelJS.CellRichTextValue | ExcelJS.CellHyperlinkValue | ExcelJS.CellFormulaValue | ExcelJS.CellSharedFormulaValue | null | undefined; timeOut: string | number | boolean | Date | ExcelJS.CellErrorValue | ExcelJS.CellRichTextValue | ExcelJS.CellHyperlinkValue | ExcelJS.CellFormulaValue | ExcelJS.CellSharedFormulaValue | null | undefined; }, index: number) => {
+          const row = rowIndex + index;
+          const parsedDate = parse(absen.date, 'yyyy-MM-dd', new Date());
+          const formattedDate = format(parsedDate, 'dd-MM-yyyy');
+
+          worksheet.getCell(`B${row}`).value = id;
+          worksheet.getCell(`B${row}`).font = font;
+          worksheet.getCell(`C${row}`).value = name;
+          worksheet.getCell(`C${row}`).font = font;
+          worksheet.getCell(`D${row}`).value = formattedDate;
+          worksheet.getCell(`D${row}`).font = font;
+          worksheet.getCell(`E${row}`).value = absen.timeIn;
+          worksheet.getCell(`E${row}`).font = font;
+          worksheet.getCell(`F${row}`).value = absen.timeOut;
+          worksheet.getCell(`F${row}`).font = font;
+          worksheet.getCell(`G${row}`).value = "+07:00";
+          worksheet.getCell(`G${row}`).font = font;
         });
-      } else {
-        console.error('mergedData is undefined or null');
-      }
-      
-      
-  
-      XLSX.utils.book_append_sheet(workbook, worksheet, worksheetName);
-  
-      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-      const excelFile = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      const fileName = `absen BDP12 ${minDateFormat} - ${maxDateFormat}.xlsx`;
-      saveAs(excelFile, fileName);
-    } catch (error) {
-      console.error('Error generating Excel file:', error);
+        
+
+        rowIndex += absenData.length;
+        console.log(`ini panjang absenData : ${absenData.length}`);
+      });
+    } else {
+      console.error('mergedData is undefined or null');
     }
-  };
+
+    const excelBuffer = await workbook.xlsx.writeBuffer();
+    const excelFile = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const fileName = `Absen BDP12 ${minDateFormat} - ${maxDateFormat}.xlsx`;
+    saveAs(excelFile, fileName);
+  } catch (error) {
+    console.error('Error generating Excel file:', error);
+  }
+};
+
   
   const ambil = async () => {
     setIsLoading(true);
     await fetchData();
+    // await testFetch()
     console.log(mergedData);
     await generateExcelFile();
     setIsLoading(false);
@@ -159,17 +214,17 @@ const Admin: React.FC = () => {
           <Navbar.Text className="ml-auto">{formattedTime}</Navbar.Text>
         </Container>
       </Navbar>
-      <button className="all" onClick={ambil}>
+      <button
+        className="w-200 h-24 rounded-20 bg-red-500 border-2 border-black text-white absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
+        onClick={ambil}
+      >
         Ambil Semua Data
       </button>
 
+
+
       {isLoading && (
-        <div className="loading">
-          <Spinner animation="border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-          <p>Mengambil data dari bins...</p>
-        </div>
+        <LoadingComponent/>
       )}
 
 
